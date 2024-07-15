@@ -1,0 +1,32 @@
+{
+  "name": "rainbowroad",
+  "version": "1.0.0",
+  "description": "Rainbow Road from Mario Card in ThreeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dcconnell/RainbowRoad.git"
+  },
+  "keywords": [
+    "Mario",
+    "Rainbow",
+    "Road",
+    "Cart",
+    "ThreeJS"
+  ],
+  "author": "dcconnell",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dcconnell/RainbowRoad/issues"
+  },
+  "homepage": "https://github.com/dcconnell/RainbowRoad#readme",
+  "dependencies": {
+    "three": "^0.166.1"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3"
+  }
+}
