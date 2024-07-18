@@ -10,7 +10,12 @@ const stylesHandler = 'style-loader';
 
 
 const config = {
-
+    // entry: [
+    //     'webpack-dev-server/client?http://0.0.0.0:80',
+    //     'webpack/hot/only-dev-server',
+    //      config.paths.demo
+    //  ],
+    
     output: {
         path: path.resolve(__dirname, 'dist'),
     },
@@ -33,6 +38,7 @@ const config = {
             // Learn more about loaders from https://webpack.js.org/loaders/
         ],
     },
+    // plugins:[new webpack.HotModuleReplacementPlugin()]
 };
 
 module.exports = () => {
