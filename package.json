@@ -1,10 +1,14 @@
 {
-  "name": "rainbowroad",
+  "name": "my-webpack-project",
   "version": "1.0.0",
-  "description": "Rainbow Road from Mario Card in ThreeJS",
+  "description": "My webpack project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode=production --node-env=production",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production --node-env=production",
+    "watch": "webpack --watch"
   },
   "repository": {
     "type": "git",
@@ -27,6 +31,11 @@
     "three": "^0.166.1"
   },
   "devDependencies": {
-    "buffer": "^6.0.3"
+    "@webpack-cli/generators": "^3.0.7",
+    "buffer": "^6.0.3",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.93.0",
+    "webpack-cli": "^5.1.4"
   }
 }
