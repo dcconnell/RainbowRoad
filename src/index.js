@@ -99,7 +99,7 @@ function planePath(count, angle, alignToMin, color, width, length, lastPlane, la
         colorIndex = color.indexOf(lastColor)
     }
 
-    for (i = 0; i < count; i++) {
+    for (let i = 0; i < count; i++) {
 
         if (typeof(angle) === Array){
             rotation = angle[i]
