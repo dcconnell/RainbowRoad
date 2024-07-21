@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/dcconnell/RainbowRoad#readme",
   "dependencies": {
-    "three": "^0.166.1"
+    "three": "^0.166.1",
+    "three.path": "^1.0.1"
   },
   "devDependencies": {
     "@webpack-cli/generators": "^3.0.7",
