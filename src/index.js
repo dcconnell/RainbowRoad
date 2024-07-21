@@ -1,5 +1,5 @@
-import * as THREE from "./three"
-import { OrbitControls } from "./three/examples/jsm/controls/OrbitControls.js"
+import * as THREE from "three"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
 // setting this to true will enable orbit controls
 let dev = false
