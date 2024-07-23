@@ -1,8 +1,9 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
+import { create0DegPath, create180DegPath, create181To269DegPath, create1To89DegPath, create270DegPath, create271To359DegPath, create90DegPath, create91To179DegPath} from "./pathFunctions"
 
 // setting this to true will enable orbit controls
-let dev = false
+let dev = true
 
 const renderer = new THREE.WebGLRenderer()
 
@@ -26,7 +27,7 @@ if (dev){
 // orbit.enablePan = false
 
 // camera.position.set(0, 1, 3)
-camera.position.set(0, 15, 20)
+camera.position.set(0, 10, 60)
 
 const gridHelper = new THREE.GridHelper(30, 30)
 scene.add(gridHelper)
@@ -38,7 +39,6 @@ scene.add(ambientLight)
 
 // rainbow colors: red   orange    yellow    green      blue      indigo    voilet   https://www.krishnamani.in/color-codes-for-rainbow-vibgyor-colours/
 let rainbowColors = [0xFF0000, 0xFF7F00, 0xFFFF00, 0x00FF00, 0x0000FF, 0x4B0082, 0x9400D3]
-let colorIndex = 0
 
 const raceCarGeometry = new THREE.SphereGeometry(0.25)
 const raceCarMaterial = new THREE.MeshBasicMaterial({color: 0x222222})
@@ -87,8 +87,8 @@ function steer(mouseX, carX, carY, carZ, acceleration) {
     }
 }
 
-function planePath(count, angle, alignToMin, color, width, length, lastPlane, lastColor){
-    let rotation, pMax, pMin, pY, pZ, o, x, y, z
+function createLeftTurn(count, angle, color, length, lastPlane, lastColor){
+    let rotation, pMax, pMin, pY, pZ, o, x, y, z, colorIndex = 0, vertices
 
     if (lastPlane){
         pY = lastPlane.position.y
@@ -98,120 +98,80 @@ function planePath(count, angle, alignToMin, color, width, length, lastPlane, la
         pMin = lastBox.min
         colorIndex = color.indexOf(lastColor)
     }
-
-    for (let i = 0; i < count; i++) {
-
-        if (typeof(angle) === Array){
-            rotation = angle[i]
+    
+    for (i = 0; i < count; i++){
+        let angleRads = angle * Math.PI / 180
+        let x1 = pMax.x + length * Math.cos(angleRads)
+        let x2 = pMin.x + length * Math.cos(angleRads)
+        if (i === 0){
+            vertices = new Float32Array([
+                pMin.x, pMax.y, pMax.z, // red
+                x1, pMax.y, pMax.z + length, // yellow
+                pMax.x, pMax.y, pMax.z, // blue
+    
+                x1, pMax.y, pMax.z + length,
+                x2, pMax.y, pMax.z + length, // purple
+                pMin.x, pMax.y, pMax.z,
+            ])
         }
-        else{
-            rotation = angle
-        }
+        else {
+            vertices = new Float32Array([
+                px2, pMax.y, pMax.z, // red
+                x1, pMax.y, pMax.z + length, // yellow
+                pMax.x, pMax.y, pMax.z, // blue
+    
+                x1, pMax.y, pMax.z + length,
+                x2 - (pMax.x - x1), pMax.y, pMax.z + length, // purple
+                px2, pMax.y, pMax.z,
+            ])
+            if (i === 1){
+                const s1g = new THREE.SphereGeometry(.1)
+                const s1m = new THREE.MeshBasicMaterial({color: 'red'})
+                const s1 = new THREE.Mesh(s1g, s1m)
+                scene.add(s1)
+                s1.position.set(px2, pMax.y, pMax.z)
 
-        if (colorIndex === color.length - 1){
-            colorIndex = 0
-        }
+                const s2m = new THREE.MeshBasicMaterial({color: 'yellow'})
+                const s2 = new THREE.Mesh(s1g, s2m)
+                scene.add(s2)
+                s2.position.set(x1, pMax.y, pMax.z + length)
 
-        let g = new THREE.PlaneGeometry(width, length, 1, 1)
-        let m = new THREE.MeshBasicMaterial({color: color[colorIndex], wireframe: false, side: THREE.DoubleSide, transparent: true, opacity: 0.5})
+                const s3m = new THREE.MeshBasicMaterial({color: 'blue'})
+                const s3 = new THREE.Mesh(s1g, s3m)
+                scene.add(s3)
+                s3.position.set(pMax.x, pMax.y, pMax.z)
+
+                const s4m = new THREE.MeshBasicMaterial({color: 'purple'})
+                const s4 = new THREE.Mesh(s1g, s4m)
+                scene.add(s4)
+                s4.position.set(x2 + (x1 - pMax.x), pMax.y, pMax.z + length)
+            }
+        }
+        
+
+        const g = new THREE.BufferGeometry()
+        const m = new THREE.MeshBasicMaterial({color: color[colorIndex], wireframe: true, side: THREE.DoubleSide})
+
+        g.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ))
         o = new THREE.Mesh(g, m)
         scene.add(o)
-        o.rotation.set(THREE.MathUtils.degToRad(rotation), 0, 0)
-        
-        let box3 = new THREE.Box3().setFromObject(o)
 
-        if (i === 1 && pY === 0){
-            pY = 1
-        }
+        const box3 = new THREE.Box3().setFromObject(o)
 
-        if ((i != 0 || lastPlane) && !alignToMin){
-            if(rotation <= 90){
-                x = o.position.x
-                y = (pMax.y + (box3.max.y + box3.min.y) + (box3.max.y - o.position.y))
-                z = (pMax.z + (o.position.z - box3.min.z))
-    
-                o.position.set(x, y, z)
-            }
-            else if (rotation > 90 && rotation <= 180){
-                x = o.position.x
-                y = (pMin.y - (box3.max.y + box3.min.y) - (box3.max.y - o.position.y))
-                z = (pMax.z + (o.position.z - box3.min.z))
-    
-                o.position.set(x, y, z)
-            }
-            else if (rotation > 180 && rotation <= 270){
-                x = o.position.x
-                if (i === 0){
-                    y = (pMax.y - (box3.max.y + box3.min.y) + (box3.max.y - o.position.y))
-                    z = (pMax.z - (o.position.z - box3.min.z))
-                }
-                else{
-                    y = (pMin.y - (box3.max.y + box3.min.y) - (box3.max.y - o.position.y))
-                    z = (pMin.z - (o.position.z - box3.min.z))
-                }
-    
-                o.position.set(x, y, z)
-            }
-            else{
-                x = o.position.x
-                y = (pMax.y + (box3.max.y + box3.min.y) + (box3.max.y - o.position.y))
-                z = (pMin.z - (o.position.z - box3.min.z))
-    
-                o.position.set(x, y, z)
-            }
-        }
-        if ((i != 0 || lastPlane) && alignToMin){
-            if(rotation <= 90){
-                x = o.position.x
-                y = (pMin.y + (box3.max.y + box3.min.y) + (box3.max.y - o.position.y))
-                z = (pMax.z + (o.position.z - box3.min.z))
-    
-                o.position.set(x, y, z)
-            }
-            else if (rotation > 90 && rotation <= 180){
-                x = o.position.x
-                y = (pMin.y - (box3.max.y + box3.min.y) - (box3.max.y - o.position.y))
-                z = (pMax.z + (o.position.z - box3.min.z))
-    
-                o.position.set(x, y, z)
-            }
-            else if (rotation > 180 && rotation <= 270){
-                x = o.position.x
-                y = (pMin.y - (box3.max.y + box3.min.y) - (box3.max.y - o.position.y))
-                z = (pMin.z - (o.position.z - box3.min.z))
-    
-                o.position.set(x, y, z)
-            }
-            else{
-                x = o.position.x
-                y = (pMax.y + (box3.max.y + box3.min.y) + (box3.max.y - o.position.y))
-                z = (pMin.z - (o.position.z - box3.min.z))
-    
-                o.position.set(x, y, z)
-            }
-        }
-        let box4 = new THREE.Box3().setFromObject(o)
-        pMax = box4.max
-        pMin = box4.min
-        pY = o.position.y
-        pZ = o.position.z
-        colorIndex += 1
-        // console.log(pY, angle, pMax.y, box3.max.y)
+        px1 =x1
+        px2 = x2
+        pMin = box3.min
+        pMax = box3.max
+        angle += (angle - 90)
     }
-    return [o, color[colorIndex]]
 }
 
+
 // rainbow road track
-const p1 = planePath(20, 90, true, rainbowColors, 10, 3)
-const p2 = planePath(2, 120, true, rainbowColors, 10, 3, p1[0], p1[1])
-const p3 = planePath(4, 133, true, rainbowColors, 10, 3, p2[0], p2[1])
-const p4 = planePath(10, 90, true, rainbowColors, 10, 3, p3[0], p3[1])
-const p5 = planePath(3, 80, false, rainbowColors, 10, 3, p4[0], p4[1])
-const p6 = planePath(4, 40, false, rainbowColors, 10, 3, p5[0], p5[1])
-const p7 = planePath(500, 90, false, rainbowColors, 10, 3, p6[0], p6[1])
+const p1 = create90DegPath(scene, 10, rainbowColors, 10, 3)
+const t1 = createLeftTurn(3, 80, rainbowColors, 3, p1[0], p1[1])
 
-
-function animateRoad() {
+function animate() {
     // rotateObject(anglePlane, 0.1, 30)
     if (!dev){
         if (mouseDown && !mouseIsDown[0]){
@@ -280,4 +240,4 @@ window.addEventListener('resize', function() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-renderer.setAnimationLoop(animateRoad)
+renderer.setAnimationLoop(animate)
