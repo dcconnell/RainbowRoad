@@ -1,7 +1,8 @@
 # RainbowRoad
 Attempting to recreate rainbow road from mario with Three js
 
-
+npm install parcel
+npm install three
 npm install -g webpack webpack-cli
 
 Couple of weird things going here, since im not mega experienced
