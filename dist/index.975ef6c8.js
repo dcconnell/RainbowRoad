@@ -659,7 +659,7 @@ function steer(mouseX, carX, carY, carZ, acceleration) {
         camera.lookAt(raceCar.position);
     }
 }
-function createLeftTurn(count, angle, color, length, lastPlane, lastColor) {
+function createLeftTurn(count, width, angle, color, length, lastPlane, lastColor) {
     let rotation, pMax, pMin, pY, pZ, o, x, y, z, colorIndex = 0, vertices;
     if (lastPlane) {
         pY = lastPlane.position.y;
@@ -695,7 +695,7 @@ function createLeftTurn(count, angle, color, length, lastPlane, lastColor) {
         ]);
         else {
             vertices = new Float32Array([
-                px2,
+                pMax.x - width,
                 pMax.y,
                 pMax.z,
                 x1,
@@ -707,21 +707,30 @@ function createLeftTurn(count, angle, color, length, lastPlane, lastColor) {
                 x1,
                 pMax.y,
                 pMax.z + length,
-                x2 - (pMax.x - x1),
+                x1 - width,
                 pMax.y,
                 pMax.z + length,
-                px2,
+                pMax.x - width,
                 pMax.y,
                 pMax.z
             ]);
-            if (i === 1) {
+            if (i === 2) {
+                const s1g = new _three.SphereGeometry(.1);
+                const s1m = new _three.MeshBasicMaterial({
+                    color: "white"
+                });
+                const s1 = new _three.Mesh(s1g, s1m);
+                scene.add(s1);
+                s1.position.set(px2, pMax.y, pMax.z);
+            }
+            if (i === 2) {
                 const s1g = new _three.SphereGeometry(.1);
                 const s1m = new _three.MeshBasicMaterial({
                     color: "red"
                 });
                 const s1 = new _three.Mesh(s1g, s1m);
                 scene.add(s1);
-                s1.position.set(px2, pMax.y, pMax.z);
+                s1.position.set(pMax.x - width, pMax.y, pMax.z);
                 const s2m = new _three.MeshBasicMaterial({
                     color: "yellow"
                 });
@@ -739,7 +748,7 @@ function createLeftTurn(count, angle, color, length, lastPlane, lastColor) {
                 });
                 const s4 = new _three.Mesh(s1g, s4m);
                 scene.add(s4);
-                s4.position.set(x2 + (x1 - pMax.x), pMax.y, pMax.z + length);
+                s4.position.set(x1 - width, pMax.y, pMax.z + length);
             }
         }
         const g = new _three.BufferGeometry();
@@ -761,7 +770,7 @@ function createLeftTurn(count, angle, color, length, lastPlane, lastColor) {
 }
 // rainbow road track
 const p1 = (0, _pathFunctions.create90DegPath)(scene, 10, rainbowColors, 10, 3);
-const t1 = createLeftTurn(3, 80, rainbowColors, 3, p1[0], p1[1]);
+const t1 = createLeftTurn(4, 10, 80, rainbowColors, 3, p1[0], p1[1]);
 function animate() {
     // rotateObject(anglePlane, 0.1, 30)
     if (!dev) {

@@ -87,7 +87,7 @@ function steer(mouseX, carX, carY, carZ, acceleration) {
     }
 }
 
-function createLeftTurn(count, angle, color, length, lastPlane, lastColor){
+function createLeftTurn(count, width, angle, color, length, lastPlane, lastColor){
     let rotation, pMax, pMin, pY, pZ, o, x, y, z, colorIndex = 0, vertices
 
     if (lastPlane){
@@ -116,20 +116,27 @@ function createLeftTurn(count, angle, color, length, lastPlane, lastColor){
         }
         else {
             vertices = new Float32Array([
-                px2, pMax.y, pMax.z, // red
+                pMax.x - width, pMax.y, pMax.z, // red
                 x1, pMax.y, pMax.z + length, // yellow
                 pMax.x, pMax.y, pMax.z, // blue
     
-                x1, pMax.y, pMax.z + length,
-                x2 - (pMax.x - x1), pMax.y, pMax.z + length, // purple
-                px2, pMax.y, pMax.z,
+                x1, pMax.y, pMax.z + length, // red
+                x1 - width, pMax.y, pMax.z + length, // purple
+                pMax.x - width, pMax.y, pMax.z,
             ])
-            if (i === 1){
+            if (i === 2){
+                const s1g = new THREE.SphereGeometry(.1)
+                const s1m = new THREE.MeshBasicMaterial({color: 'white'})
+                const s1 = new THREE.Mesh(s1g, s1m)
+                scene.add(s1)
+                s1.position.set(px2, pMax.y, pMax.z)
+            }
+            if (i === 2){
                 const s1g = new THREE.SphereGeometry(.1)
                 const s1m = new THREE.MeshBasicMaterial({color: 'red'})
                 const s1 = new THREE.Mesh(s1g, s1m)
                 scene.add(s1)
-                s1.position.set(px2, pMax.y, pMax.z)
+                s1.position.set(pMax.x - width, pMax.y, pMax.z)
 
                 const s2m = new THREE.MeshBasicMaterial({color: 'yellow'})
                 const s2 = new THREE.Mesh(s1g, s2m)
@@ -144,7 +151,7 @@ function createLeftTurn(count, angle, color, length, lastPlane, lastColor){
                 const s4m = new THREE.MeshBasicMaterial({color: 'purple'})
                 const s4 = new THREE.Mesh(s1g, s4m)
                 scene.add(s4)
-                s4.position.set(x2 + (x1 - pMax.x), pMax.y, pMax.z + length)
+                s4.position.set(x1 - width, pMax.y, pMax.z + length)
             }
         }
         
@@ -169,7 +176,7 @@ function createLeftTurn(count, angle, color, length, lastPlane, lastColor){
 
 // rainbow road track
 const p1 = create90DegPath(scene, 10, rainbowColors, 10, 3)
-const t1 = createLeftTurn(3, 80, rainbowColors, 3, p1[0], p1[1])
+const t1 = createLeftTurn(4, 10, 80, rainbowColors, 3, p1[0], p1[1])
 
 function animate() {
     // rotateObject(anglePlane, 0.1, 30)
